@@ -44,6 +44,11 @@ sim_voting <- function (sim_conf,algorithm_function) {
       }
     }
   }
+  
+  if(!verdict_reached) {
+    result[["verdict_at_time"]] <- sim_conf[["n_votes_tot"]]
+    result[["verdict_estimated"]] <- this_step_output[["verdict_estimated"]]
+  }
 
   result[["debug_store"]] <- debug_store
   
