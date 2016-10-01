@@ -4,7 +4,7 @@ setwd("~/workspace/CoProjects-R/algorithm_benchmark")
 rm(list = ls())
 
 set.seed(5) 
-algo_ix <- 1
+algo_ix <- 2
 # configure decision algorithm function
 if(algo_ix == 1) {
   debugSource("algorithms/decision_mechanism_01/decision_mechanism_01.R")
@@ -25,12 +25,17 @@ debugSource("main/sim_voting.R")
 
 # configure the test
 sim_conf <- list()
-sim_conf[["p_true"]] <- 0.7       # probability of voting accept
+sim_conf[["p_true"]] <- 0.55       # probability of voting accept
 sim_conf[["n_votes_tot"]] <- 20  # number of possible votes
 sim_conf[["n_mc"]] <- 100         # number of montecarlo runs
 
 sim_conf[["pps_concentration_case"]] <- "homogeneous"
 sim_conf[["pps_tot"]] <- 150
+
+sim_conf[["use_rtc"]] <- TRUE
+debugSource("algorithms/decision_mechanism_02/rtc_01.R")
+debugSource("algorithms/decision_mechanism_02/rtc_comparison.R")
+rtc_function <- rct_01
 
 # prepare the correct verdict ()
 if(sim_conf[["p_true"]] > 0.5) {
@@ -51,11 +56,12 @@ results <- vector("list",sim_conf[["n_mc"]])
 for(ix_mc in 1:sim_conf[["n_mc"]]) {
   
   print(ix_mc)
-  set.seed(seeds[ix_mc])
+  sim_conf[["ix_mc"]] <- ix_mc
+  sim_conf[["seed"]] <- seeds[ix_mc]
   
   # -------- simulate n_votes votes ---------
   # store the output of the simulation in res
-  results[[ix_mc]] <- sim_voting(sim_conf,algorithm_function)
+  results[[ix_mc]] <- sim_voting(sim_conf,algorithm_function,rtc_function)
   # -----------------------------------------
   
   # store the results of this simulation
@@ -73,4 +79,9 @@ algorithm_postprocessing(result)
 hist(verdict_at_time)
 print(paste("correct verdict",sum(verdict_was_correct)/length(verdict_was_correct)*100,"% of times"))
 print(paste("verdict taken at vote",mean(verdict_at_time),"in mean with std",sd(verdict_at_time) ))
+
+if(sim_conf[["use_rtc"]]) {
+  rtc_comparison(results,rtc_function)
+}
+  
 

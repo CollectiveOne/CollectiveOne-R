@@ -1,5 +1,7 @@
-sim_voting <- function (sim_conf,algorithm_function) {
+sim_voting <- function (sim_conf,algorithm_function,rtc_function) {
 
+  set.seed(sim_conf[["seed"]])
+  
   # The distribution of ppoints among voters
   switch(sim_conf[["pps_concentration_case"]],
     homogeneous = { p_ratio <- sim_conf[["pps_tot"]]/sim_conf[["n_votes_tot"]]*rep(1, sim_conf[["n_votes_tot"]])  },
@@ -8,8 +10,15 @@ sim_voting <- function (sim_conf,algorithm_function) {
   pps <- p_ratio/sum(p_ratio)*sim_conf[["pps_tot"]]
   
   # generate the votes (all of them)
-  votes_base <- runif(sim_conf[["n_votes_tot"]],0,1)
-  votes <- votes_base < sim_conf[["p_true"]]
+  if(!sim_conf[["use_rtc"]]) {
+    votes_base <- runif(sim_conf[["n_votes_tot"]],0,1)
+    votes <- votes_base < sim_conf[["p_true"]]  
+  } else {
+    # rtc <- sim_conf[["rct_fun"]]()
+    rtc <- rtc_function()
+    votes_mat <- rtc[["votes"]]
+    votes <- votes_mat[ sim_conf[["ix_mc"]], ]
+  }
   
   # simulate each vote and store data
   debug_store = vector("list",sim_conf[["n_votes_tot"]])
