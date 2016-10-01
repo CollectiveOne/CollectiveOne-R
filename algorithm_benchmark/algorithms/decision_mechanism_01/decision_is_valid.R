@@ -58,8 +58,8 @@ decision_is_valid <- function (inputs,clarity_result,stab_data,pars) {
       pc_ci_high_ext_time <- ci_mean + high;
     }
   
-    pc_ci_low_use <- pc_ci_low_ext_time
-    pc_ci_high_use <- pc_ci_high_ext_time
+    pc_ci_low_use <- pc_ci_low_ext
+    pc_ci_high_use <- pc_ci_high_ext
     
     # check if the probability of outcome flipping is too low
     if((pc_rest_flip < pc_ci_low_use) | (pc_rest_flip > pc_ci_high_use)) {

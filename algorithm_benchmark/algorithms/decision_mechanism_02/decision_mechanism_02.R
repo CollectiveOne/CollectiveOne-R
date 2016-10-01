@@ -4,8 +4,9 @@ decision_mechanism_02 <- function (inputs) {
   debugSource("algorithms/decision_mechanism_02/compute_post.R")
   
   votes <- inputs[["votes"]]
+  pps <- inputs[["pps"]]
+  pps_tot <- inputs[["pps_tot"]]
   n <- inputs[["n_votes_tot"]]
-  k <- length(votes)
   
   # paramaters
   eps <- 0.05
@@ -13,7 +14,10 @@ decision_mechanism_02 <- function (inputs) {
   a <- 1
   b <- 1
   
-  s <- sum(votes)
+  s <- sum(votes*pps)
+  n <- pps_tot
+  k <- sum(pps)
+  
   pkj <- compute_pkj(n,k,s,l,a,b)
   p_est <- s/k
 

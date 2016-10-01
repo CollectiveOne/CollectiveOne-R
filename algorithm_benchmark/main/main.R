@@ -3,14 +3,18 @@
 setwd("~/workspace/CoProjects-R/algorithm_benchmark")
 rm(list = ls())
 
+sim_conf <- list()
 set.seed(5) 
 algo_ix <- 2
+
 # configure decision algorithm function
 if(algo_ix == 1) {
   debugSource("algorithms/decision_mechanism_01/decision_mechanism_01.R")
   algorithm_function <- decision_mechanism_01
   debugSource("algorithms/decision_mechanism_01/decision_mechanism_01_pp.R")
   algorithm_postprocessing <- decision_mechanism_01_pp  
+  
+  sim_conf[["use_rtc"]] <- FALSE
 }
 
 if(algo_ix == 2) {
@@ -18,24 +22,27 @@ if(algo_ix == 2) {
   algorithm_function <- decision_mechanism_02
   debugSource("algorithms/decision_mechanism_02/decision_mechanism_02_pp.R")
   algorithm_postprocessing <- decision_mechanism_02_pp
+  
+  # enable to run votes extracted from RTC
+  sim_conf[["use_rtc"]] <- FALSE
+  debugSource("algorithms/decision_mechanism_02/rtc_01.R")
+  debugSource("algorithms/decision_mechanism_02/rtc_comparison.R")
+  rtc_function <- rct_01
+  
 }
 
 # prepare test
 debugSource("main/sim_voting.R")
 
 # configure the test
-sim_conf <- list()
-sim_conf[["p_true"]] <- 0.55       # probability of voting accept
+
+sim_conf[["p_true"]] <- 0.6       # probability of voting accept
 sim_conf[["n_votes_tot"]] <- 20  # number of possible votes
 sim_conf[["n_mc"]] <- 100         # number of montecarlo runs
 
 sim_conf[["pps_concentration_case"]] <- "homogeneous"
-sim_conf[["pps_tot"]] <- 150
+sim_conf[["pps_tot"]] <- 2000
 
-sim_conf[["use_rtc"]] <- TRUE
-debugSource("algorithms/decision_mechanism_02/rtc_01.R")
-debugSource("algorithms/decision_mechanism_02/rtc_comparison.R")
-rtc_function <- rct_01
 
 # prepare the correct verdict ()
 if(sim_conf[["p_true"]] > 0.5) {
