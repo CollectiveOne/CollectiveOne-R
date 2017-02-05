@@ -24,6 +24,7 @@ decision_is_valid <- function (inputs,clarity_result,stab_data,pars) {
     # confidence interval for p_est
     # TODO: not fully consistent as this assumes  they all have the 
     # same number of ppoints
+    # http://www.math.uah.edu/stat/interval/Bernoulli.html
     a <- 1-pars[["ci"]]
     pc_ci_low <- p_est - qnorm(1-a/2)*sqrt(p_est*(1-p_est)/n_votes_now)
     pc_ci_high <- p_est - qnorm(a-a/2)*sqrt(p_est*(1-p_est)/n_votes_now)
@@ -43,7 +44,10 @@ decision_is_valid <- function (inputs,clarity_result,stab_data,pars) {
     elapsedFactor <- inputs[["time"]]/pars[["max_duration"]]
     # extFactor goes from 1 to -1, passing through 0 when elapsedFactor is
     # 0.5 which is when elapsedHours are half the verdictHours
-    extFactor = 2 * (1 - elapsedFactor) - 1;
+    # extFactor = 2 * (1 - elapsedFactor) - 1;
+    
+    # extFactor goes from 0 to -1, which is when elapsedHours are half the verdictHours
+    extFactor = -elapsedFactor;
     
     if (extFactor > 0) {
       # expand towards the [0,1] borders
@@ -58,8 +62,11 @@ decision_is_valid <- function (inputs,clarity_result,stab_data,pars) {
       pc_ci_high_ext_time <- ci_mean + high;
     }
   
-    pc_ci_low_use <- pc_ci_low_ext
-    pc_ci_high_use <- pc_ci_high_ext
+    # pc_ci_low_use <- pc_ci_low_ext
+    # pc_ci_high_use <- pc_ci_high_ext
+    
+    pc_ci_low_use <- pc_ci_low_ext_time
+    pc_ci_high_use <- pc_ci_high_ext_time
     
     # check if the probability of outcome flipping is too low
     if((pc_rest_flip < pc_ci_low_use) | (pc_rest_flip > pc_ci_high_use)) {
@@ -82,12 +89,12 @@ decision_is_valid <- function (inputs,clarity_result,stab_data,pars) {
     is_valid <- TRUE
     
     valid_data[["pc_rest_flip"]] <- 0
-    valid_data[["pc_ci_low"]] <- 0
-    valid_data[["pc_ci_high"]] <- 1
-    valid_data[["pc_ci_low_ext"]] <- 0
-    valid_data[["pc_ci_high_ext"]] <- 1
-    valid_data[["pc_ci_low_ext_time"]] <- 0
-    valid_data[["pc_ci_high_ext_time"]] <- 1
+    valid_data[["pc_ci_low"]] <- 0.5
+    valid_data[["pc_ci_high"]] <- 0.5
+    valid_data[["pc_ci_low_ext"]] <- 0.5
+    valid_data[["pc_ci_high_ext"]] <- 0.5
+    valid_data[["pc_ci_low_ext_time"]] <- 0.5
+    valid_data[["pc_ci_high_ext_time"]] <- 0.5
   }
 
   valid_data[["is_valid"]] <- is_valid

@@ -1,11 +1,26 @@
 # set working folder
 # dev.off(dev.list()["RStudioGD"])
-setwd("~/workspace/CoProjects-R/algorithm_benchmark")
+setwd("~/workspace-sts/CollectiveOne-R/algorithm_benchmark")
 rm(list = ls())
 
 sim_conf <- list()
 set.seed(5) 
-algo_ix <- 2
+algo_ix <- 1
+
+# configure the test
+sim_conf[["p_true"]] <- 0.7          # probability of voting accept
+sim_conf[["n_votes_tot"]] <- 20      # number of possible votes
+sim_conf[["test_duration"]] <- 100   # test duration in hours. The algorithm is called once every hour
+
+sim_conf[["vote_patter"]] <- "periodic" # rule to decide how votes are casted as a funcition of time
+# homogeneous: one vote every fixed (period) number of hours
+sim_conf[["period"]] <- 5
+
+sim_conf[["n_mc"]] <- 10         # number of montecarlo runs
+
+# pareto homogeneous
+sim_conf[["pps_concentration_case"]] <- "homogeneous" 
+sim_conf[["pps_tot"]] <- 1000
 
 # configure decision algorithm function
 if(algo_ix == 1) {
@@ -33,16 +48,6 @@ if(algo_ix == 2) {
 
 # prepare test
 debugSource("main/sim_voting.R")
-
-# configure the test
-
-sim_conf[["p_true"]] <- 0.6       # probability of voting accept
-sim_conf[["n_votes_tot"]] <- 20  # number of possible votes
-sim_conf[["n_mc"]] <- 100         # number of montecarlo runs
-
-sim_conf[["pps_concentration_case"]] <- "homogeneous"
-sim_conf[["pps_tot"]] <- 2000
-
 
 # prepare the correct verdict ()
 if(sim_conf[["p_true"]] > 0.5) {

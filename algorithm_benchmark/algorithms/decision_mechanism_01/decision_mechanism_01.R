@@ -8,7 +8,9 @@ decision_mechanism_01 <- function (inputs) {
   pars <- list()
   pars[["ci"]] <- 0.9
   pars[["stab_ratio"]] <- 0.5
-  pars[["max_duration"]] <- inputs[["n_votes_tot"]]
+  # time is not being considered, time window coincides with the number of votes
+  # so elapsedFactor is equal to the voters ratio
+  pars[["max_duration"]] <- inputs[["test_duration"]]
   
   # analize vote clarity
   clarity_result <- decision_clarity(inputs)
@@ -21,8 +23,13 @@ decision_mechanism_01 <- function (inputs) {
   
   # process results to fit output interface
   output <- list()
-  output[["verdict_reached"]] <- verdict_validity[["is_valid_data"]][["is_valid"]]
-  output[["verdict_estimated"]] <- verdict_result[["verdict"]]
+  if(!is.nan(verdict_result[["verdict"]])) {
+    output[["verdict_reached"]] <- verdict_validity[["is_valid_data"]][["is_valid"]]
+  } else {
+    output[["verdict_reached"]] <- FALSE;
+  }
+  
+  output[["verdict_estimated"]] <- verdict_result[["verdict"]]  
   
   debug_data <- list()
   debug_data[["clarity_result"]] <- clarity_result

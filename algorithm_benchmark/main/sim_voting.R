@@ -26,23 +26,58 @@ sim_voting <- function (sim_conf,algorithm_function,rtc_function) {
   # flag to mark when the algorithm reached a verdict
   result <- list()
   verdict_reached <- FALSE
+
+  n_hours_no_vote <- 0
+  ix_vote <- 0
   
-  for (ix in 1:sim_conf[["n_votes_tot"]]) {
+  for (ix_hour in 1:sim_conf[["test_duration"]]) {
     
     # prepare the inputs to the decision algorithm
     step_inputs <- list()
-    step_inputs[["votes"]] <- votes[1:ix]
-    step_inputs[["pps"]] <- pps[1:ix]
+    
+    # determine the number of votes that are casted at this time
+    switch(sim_conf[["vote_patter"]],
+      periodic = { 
+          if(n_hours_no_vote >= sim_conf[["period"]]) {
+            n_votes_now <- 1
+            n_hours_no_vote <- 0
+          } else {
+            n_votes_now <- 0
+          }
+        }
+    )
+    
+    if(n_votes_now > 0) {
+      ix_vote <- ix_vote + n_votes_now
+      # ehh, what if more than one vote???
+      this_vote <- votes[ix_vote]  
+    } else {
+      n_hours_no_vote <- n_hours_no_vote + 1;
+      this_vote <- NaN
+    }
+    
+    if(ix_vote > 1) {
+      # the algorithm receives as input all the votes received so far
+      step_inputs[["votes"]] <- votes[1:ix_vote]
+      step_inputs[["pps"]] <- pps[1:ix_vote]
+    } else {
+      step_inputs[["votes"]] <- vector()
+      step_inputs[["pps"]] <- vector()
+    }
+    
     step_inputs[["pps_tot"]] <- sum(pps)
-    step_inputs[["time"]] <- ix
     step_inputs[["n_votes_tot"]] <- sim_conf[["n_votes_tot"]]
+    step_inputs[["time"]] <- ix_hour
+    step_inputs[["test_duration"]] <- sim_conf[["test_duration"]]
     
     # ------- CALL THE DECISION ALGORITHM ----------
     this_step_output <- algorithm_function(step_inputs)
     # ----------------------------------------------
     
+    this_step_output[["debug_data"]][["vote"]] <- this_vote
+    
     # store debug variables generated at each step
-    debug_store[[ix]] <- this_step_output[["debug_data"]]
+    debug_store[[ix_hour]] <- this_step_output[["debug_data"]]
     
     # check if verdict is reached and store the time and the verdict
     if(!verdict_reached) {
