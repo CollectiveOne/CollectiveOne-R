@@ -38,7 +38,7 @@ sim_voting <- function (sim_conf,algorithm_function,rtc_function) {
     # determine the number of votes that are casted at this time
     switch(sim_conf[["vote_patter"]],
       periodic = { 
-          if(n_hours_no_vote >= sim_conf[["period"]]) {
+          if(n_hours_no_vote >= sim_conf[["period"]] - 1) {
             n_votes_now <- 1
             n_hours_no_vote <- 0
           } else {
